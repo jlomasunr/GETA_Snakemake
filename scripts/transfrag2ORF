@@ -1,0 +1,6 @@
+#!/opt/miniconda3/bin/perl
+use trict;
+
+my $usage = <<USAGE;
+Usage:
+    perl $0 
