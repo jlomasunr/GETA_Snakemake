@@ -7,12 +7,12 @@
 Input:
   RM_species:             # Species identifier for RepeatMasker. (e.g. Embryophyta)
   genome:                 # Genome file in fasta format.
-  rnaseq_type:            # RNAseq library type (single/paired)
-  rnaseq_first:           # RNAseq data (fastq.gz). Comma separated list of file names for read 1
-                          # (paired) or single end sequencing data
-  rnaseq_second:          # Comma separated list of read 2 fastq.gz files (paired only)
-  protein:                # Homologous protein sequences (derived from multiple species would be 
-                          # recommended) file in fasta format.
+  rnaseq_single:          # RNAseq single-end data (fastq.gz). Comma separated file list
+                          # **Note** All RNAseq data (paired and single) must be in same directory
+  rnaseq_first:           # RNAseq paired-end data, read 1(*_1.fq.gz). Comma separated file names                     # (paired) or single end sequencing data
+  rnaseq_second:          # RNAseq paired-end data, read 2(*_2.fq.gz). Comma separated file names
+  protein:                # Homologous protein sequences (recommended from multiple species) fasta file.
+  AUGUSTUS_CONFIG_PATH:   # Path to Augustus configuration directory 
   augustus_species:       # Species identifier for Augustus. The relative hmm files of augustus 
                           # training will be created with this prefix. If the relative hmm files 
                           # of augustus training exists, the program will delete the hmm files 
@@ -21,7 +21,7 @@ Input:
                           # augustus_species. When this parameter set, the augustus_species 
                           # parameter will be invalid, and the relative hmm files of augustus 
                           # training must exist, and the augustus training step will be skipped 
-                          # (this will save lots of runing time).
+                          # (this will save lots of running time).
 
 ###############################################################################################
 #
@@ -34,9 +34,7 @@ Input:
                           # RepeatModeler. If not set, RepeatModeler will be used for producing 
                           # this file automaticly, which is time intensive.
   strand_specific: False  # Enable the ability of analysing the strand-specific information 
-                          # provided by the tag "XS" from SAM format alignments. If this 
-                          # parameter is 'True', the paramter "--rna-strandness" of hisat2 
-                          # should be set to "RF" usually.
+                          # provided by the tag "XS" from SAM format alignments.
   pfam_db: None           # The absolute path of Pfam database which was used for filtering of 
                           # false positive gene models.
   gene_prefix: gene       # The prefix of gene id shown in output file.
@@ -53,17 +51,20 @@ Threads:
   RepeatModeler: 4
   RepeatMasker_custom: 4
   RepeatMasker_merge: 4
+  TrimGalore_paired: 4
+  TrimGalore_single: 4
+  HiSat2: 4
 
 __DEFAULT__:
-  account: cpu-s1-pgl-0
-  partition": cpu-s1-pgl-0
+  account: cpu-s1-pgl-0         # Provide cluster account
+  partition": cpu-s1-pgl-0      # Provide cluster partition
   memory: 16g
   name: JOBNAME.{rule}.{wildcards}
   ncpus": 1
   nodes": 1
   time": 7-00:00:00
-  output": output/cluster/logs/{rule}.{wildcards}.out
-  error": output/cluster/logs/{rule}.{wildcards}.err
+  output": logs/{rule}.{wildcards}.out
+  error": logs/{rule}.{wildcards}.err
 RepeatMasker_species: 
   ncpus: 16
   memory: 64g
@@ -76,6 +77,21 @@ RepeatMasker_custom:
 RepeatMasker_merge:
   ncpus: 16
   memory: 64g
+TrimGalore_paired:
+  ncpus: 16
+  memory: 64g
+TrimGalore_single:
+  ncpus: 16
+  memory: 64g
+HiSat2_build:
+  ncpus: 16
+  memory: 64g
+HiSat2:
+  ncpus: 16
+  memory: 64g
+HiSat2_sort:
+  ncpus: 16
+  memory: 64g
 
 ###############################################################################################
 #
@@ -85,7 +101,7 @@ RepeatMasker_merge:
 
 Internal:
   RepeatMasker: -e ncbi -gff
-  trimmomatic: TruSeq3-PE-2.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:50 TOPHRED33
+  TrimGalore: 
   hisat2-build: -p 1
   hisat2: --min-intronlen 20 --max-intronlen 20000 --dta --score-min L,0.0,-0.4
   sam2transfrag: --fraction 0.05 --min_expressed_base_depth 2 --max_expressed_base_depth 50 --min_junction_depth 2 --max_junction_depth 50 --min_fragment_count_per_transfrags 10 --min_intron_length 20
