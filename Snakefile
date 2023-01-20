@@ -52,8 +52,8 @@ check_software_existence(software_list)
 
 #check_software_existence("RepeatMasker")
 #check_software_existence("samtools")
-
 #def check_software_existence(software_name:str)->None:
+
 def check_software_existence(software_name:list)->None:
 	for software in software_list:
     	if shutil.which(software_name) is not None:
@@ -81,16 +81,33 @@ if not os.path.exists(f"{outDir}/homolog.fasta"):
 	os.system(f"cp {config_dict["protein"]} homolog.fasta")
 
 # Store RNAseq files
-RNAseq = config_dict["Input"]["rnaseq_first"].split(",") +
-	config_dict["Input"]["rnaseq_second"].split(",") +
-	config_dict["Input"]["rnaseq_second"].split(",")
+PE_reads = {}
+SE_reads = {}
 
-RNAseq_dir = # TODO: Get absoulte path to RNAseq data directory from first file name
+if PE1 and PE2:
+    PE1 = config_dict["Input"]["rnaseq_first"].split(",")
+    PE2 = config_dict["Input"]["rnaseq_second"].split(",")
+    if len(PE1) != len(PE2):
+        raise ValueError("the input file number of -1 was not equal to -2.")
+# RNAseq_dir = # TODO: Get absoulte path to RNAseq data directory from first file name
+	RNAseq_dir = abs_path(PE[0])
 
+def abs_path(filename:str)->str:
+	path=os.path.dirname(os.path.abspath(filename))
+	path += "/"
+	return(path)
 
+#    for i in range(len(PE1)):
+#        PE1[i] = abs_path(PE1[i])
+#        PE2[i] = abs_path(PE2[i])
+#        pe_file = PE1[i] + "\t" + PE2[i]
+#        pe_reads[pe_file] = 1
 
-
-
+#if single_end:
+#    SE = single_end.split(",")
+#   for i in range(len(SE)):
+#        SE[i] = abs_path(SE[i])
+#        SE_reads[SE[i]] = 1
 
 
 def allInput():
