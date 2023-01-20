@@ -76,7 +76,8 @@ def allInput():
 			 f"{outDir}/RepeatMasker/genome.masked.fasta",					# RepeatMasker_merge
 			 f"{outdir}/HiSat2/hisat2.sam",
 			 f"{outdir}/HiSat2/hisat2.sorted.sam",
-			 f"{outdir}/HiSat2/genome.1.ht2"
+			 f"{outdir}/HiSat2/genome.1.ht2",
+			 f"{outdir}/HiSat2/splited_sam_files.list"
 			]
 	for fq_gz in RNAseq:
 		input.append(f"TrimGalore/{re.sub("^.*\/", "", fq_gz)}")			# TrimGalore
@@ -244,13 +245,22 @@ rule HiSat2:
 
 rule HiSat2_sort:
 	input: outdir + "/HiSat2/hisat2.sam"
-	output: outdir + "/HiSat2/hisat2.sorted.sam"
+	output: 
+		outdir + "/HiSat2/hisat2.sorted.sam"
+		outdir + "/HiSat2/splited_sam_files.list"
 	run:
 		shell("samtools sort  -o hisat2.sorted.bam -O BAM hisat2.sam")
 		shell("samtools view -h hisat2.sorted.bam > hisat2.sorted.sam")
+		# Split the SAM for use in transfrag and transdecoder
+		shell("scripts/split_sam_from_non_aligned_region \
+			" + outdir + "/HiSat2/hisat2.sorted.sam \
+			splited_sam_out 10 > " + outdir + "/HiSat2/splited_sam_files.list")
 
-#TODO: Next up is to parse out hpc_gridrunner cmds into wildcards to start step 3 (Transcript)
-"$dirname/bin/split_sam_from_non_aligned_region ../2.hisat2/hisat2.sorted.sam splited_sam_out 10 > splited_sam_files.list"
+rule Sam2Transfrag:
+	input:
+	output:
+	run:
+		shell("$dirname/bin/sam2transfrag $config{'sam2transfrag'} $no_strand_specific --intron_info_out $_.intron $_.sam > $_.gtf\n";
 
 #TODO: Step 4 (homolog) relies on input from step 3
 
