@@ -1,7 +1,9 @@
+import os
 import yaml
 import logging
 import Bio
 from rich.logging import Console, RichHandler
+from termcolor import colored
 
 # Set up logging format
 logging.basicConfig(level=logging.INFO,
@@ -40,19 +42,34 @@ logging.info("config.yaml loaded successfully!")
 
 # Store inputs
 outDir = config_dict["out_prefix"]
+if not os.path.exists(outDir):
+	os.makedirs(outDir)
 
 #TODO: Check software dependencies 
 # RepeatModeler, RepeatMasker, HPCgridrunner, java, hisat2, samtools, hmmer
+software_list = ["RepeatMasker","RepeatModeler","samtools","java","blastn","hisat2","hmmscan"]
+check_software_existence(software_list)
+
+#check_software_existence("RepeatMasker")
+#check_software_existence("samtools")
+
+#def check_software_existence(software_name:str)->None:
+def check_software_existence(software_name:list)->None:
+	for software in software_list:
+    	if shutil.which(software_name) is not None:
+    		print(f"{software_name} is installed")
+		else:
+    		print(colored(f"{software_name} is not installed","red"))
 
 # Setup output folders
-os.makedirs(f"{outdir}/RepeatMasker/repeatMasker/", exist_ok=True)
-os.makedirs(f"{outdir}/RepeatMasker/repeatModeler/", exist_ok=True)
-os.makedirs(f"{outdir}/TrimGalore/", exist_ok=True)
-os.makedirs(f"{outdir}/HiSat2/", exist_ok=True)
-os.makedirs(f"{outdir}/transcript/", exist_ok=True)
-os.makedirs(f"{outdir}/Augustus/", exist_ok=True)
+os.makedirs(f"{outDir}/RepeatMasker/repeatMasker/", exist_ok=True)
+os.makedirs(f"{outDir}/RepeatMasker/repeatModeler/", exist_ok=True)
+os.makedirs(f"{outDir}/TrimGalore/", exist_ok=True)
+os.makedirs(f"{outDir}/HiSat2/", exist_ok=True)
+os.makedirs(f"{outDir}/transcript/", exist_ok=True)
+os.makedirs(f"{outDir}/Augustus/", exist_ok=True)
 if config_dict["Input"]["augustus_species"] != "":
-	os.makedirs(f"{outdir}/Augustus/training/", exist_ok=True)
+	os.makedirs(f"{outDir}/Augustus/training/", exist_ok=True)
 
 
 
@@ -69,6 +86,12 @@ RNAseq = config_dict["Input"]["rnaseq_first"].split(",") +
 	config_dict["Input"]["rnaseq_second"].split(",")
 
 RNAseq_dir = # TODO: Get absoulte path to RNAseq data directory from first file name
+
+
+
+
+
+
 
 def allInput():
 	input = [f"{outDir}/RepeatMasker/repeatMasker/genome.fasta.out",		# RepeatMasker_species
