@@ -59,7 +59,7 @@ def check_software_existence(software_name:list)->None:
     	if shutil.which(software_name) is not None:
     		print(f"{software_name} is installed")
 		else:
-    		print(colored(f"{software_name} is not installed","red"))
+			print(colored(f"{software_name} is not installed","red"))
 
 # Setup output folders
 os.makedirs(f"{outDir}/RepeatMasker/repeatMasker/", exist_ok=True)
